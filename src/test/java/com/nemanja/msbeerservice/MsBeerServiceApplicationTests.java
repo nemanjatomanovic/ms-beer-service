@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,6 +52,8 @@ class MsBeerServiceApplicationTests {
         BeerDto beerDto = BeerDto.builder()
                 .beerName("Miss Quincy")
                 .beerStyle(BeerStyleEnum.ALE)
+                .upc(312321414L)
+                .price(BigDecimal.valueOf(2.75))
                 .build();
 
         mockMvc.perform(post("/api/v1/beer/")
@@ -64,6 +67,8 @@ class MsBeerServiceApplicationTests {
         BeerDto beerDto = BeerDto.builder()
                 .beerName("Miss Quincy")
                 .beerStyle(BeerStyleEnum.ALE)
+                .upc(312321414L)
+                .price(BigDecimal.valueOf(3.25))
                 .build();
 
         mockMvc.perform(put("/api/v1/beer/" + UUID.randomUUID().toString())
