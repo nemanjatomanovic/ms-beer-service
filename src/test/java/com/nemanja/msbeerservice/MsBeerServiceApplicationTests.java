@@ -22,6 +22,7 @@ import java.util.UUID;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,7 +56,18 @@ class MsBeerServiceApplicationTests {
                 .andExpect(status().isOk())
                 .andDo(document("v1/beer", pathParameters(
                         parameterWithName("beerId").description("UUID of desired beer to get")
-                )));
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("Id of beer"),
+                                fieldWithPath("version").description("Version number"),
+                                fieldWithPath("creationDate").description("Date created"),
+                                fieldWithPath("lastModifiedDate").description("Date updated"),
+                                fieldWithPath("beerName").description("Name of the beer"),
+                                fieldWithPath("beerStyle").description("Type of the beer"),
+                                fieldWithPath("upc").description("UPC of beer"),
+                                fieldWithPath("price").description("Price of the beer"),
+                                fieldWithPath("quantityOnHand").description("Quantity on hand")
+                        )));
     }
 
     @Test
@@ -70,7 +82,19 @@ class MsBeerServiceApplicationTests {
         mockMvc.perform(post("/api/v1/beer/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andDo(document("v1/beer",
+                        requestFields(
+                                fieldWithPath("id").ignored(),
+                                fieldWithPath("version").ignored(),
+                                fieldWithPath("creationDate").ignored(),
+                                fieldWithPath("lastModifiedDate").ignored(),
+                                fieldWithPath("quantityOnHand").ignored(),
+                                fieldWithPath("beerName").description("Name of the beer"),
+                                fieldWithPath("beerStyle").description("Style of the beer"),
+                                fieldWithPath("price").description("Price of the beer"),
+                                fieldWithPath("upc").description("UPC of the beer")
+                        )));
     }
 
     @Test
