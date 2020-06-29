@@ -19,8 +19,11 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -47,9 +50,12 @@ class MsBeerServiceApplicationTests {
     @Test
     public void getBeerTest() throws Exception {
 
-        mockMvc.perform(get("/api/v1/beer/" + UUID.randomUUID().toString())
+        mockMvc.perform(get("/api/v1/beer/{beerId}", UUID.randomUUID().toString())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("v1/beer", pathParameters(
+                        parameterWithName("beerId").description("UUID of desired beer to get")
+                )));
     }
 
     @Test
