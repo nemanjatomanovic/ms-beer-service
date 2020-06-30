@@ -48,7 +48,10 @@ class MsBeerServiceApplicationTests {
     public void setUp(WebApplicationContext webApplicationContext,
                       RestDocumentationContextProvider restDocumentation) {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .apply(documentationConfiguration(restDocumentation))
+                .apply(documentationConfiguration(restDocumentation).uris()
+                        .withScheme("https")
+                        .withHost("examplehost")
+                        .withPort(4443))
                 .build();
     }
 
@@ -58,7 +61,7 @@ class MsBeerServiceApplicationTests {
         mockMvc.perform(get("/api/v1/beer/{beerId}", UUID.randomUUID().toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(document("v1/beer", pathParameters(
+                .andDo(document("v1/beer-get", pathParameters(
                         parameterWithName("beerId").description("UUID of desired beer to get")
                         ),
                         responseFields(
@@ -89,7 +92,7 @@ class MsBeerServiceApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
                 .andExpect(status().isCreated())
-                .andDo(document("v1/beer",
+                .andDo(document("v1/beer-new",
                         requestFields(
                                 fields.withPath("id").ignored(),
                                 fields.withPath("version").ignored(),
