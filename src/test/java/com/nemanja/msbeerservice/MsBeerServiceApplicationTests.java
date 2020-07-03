@@ -2,6 +2,8 @@ package com.nemanja.msbeerservice;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nemanja.msbeerservice.bootstrap.BeerLoader;
+import com.nemanja.msbeerservice.services.BeerServices;
 import com.nemanja.msbeerservice.web.model.BeerDto;
 import com.nemanja.msbeerservice.web.model.BeerStyleEnum;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -22,6 +25,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -40,6 +45,9 @@ class MsBeerServiceApplicationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    BeerServices beerServices;
+
     @Test
     void contextLoads() {
     }
@@ -57,6 +65,7 @@ class MsBeerServiceApplicationTests {
 
     @Test
     public void getBeerTest() throws Exception {
+        when(beerServices.getById(any())).thenReturn(getValidBeerDto());
 
         mockMvc.perform(get("/api/v1/beer/{beerId}", UUID.randomUUID().toString())
                 .accept(MediaType.APPLICATION_JSON))
@@ -79,10 +88,12 @@ class MsBeerServiceApplicationTests {
 
     @Test
     public void saveNewBeerTest() throws Exception {
+        when(beerServices.saveNewBeer(any())).thenReturn(getValidBeerDto());
+
         BeerDto beerDto = BeerDto.builder()
                 .beerName("Miss Quincy")
                 .beerStyle(BeerStyleEnum.ALE)
-                .upc(312321414L)
+                .upc(BeerLoader.BEER_1_UPC)
                 .price(BigDecimal.valueOf(2.75))
                 .build();
 
@@ -108,10 +119,12 @@ class MsBeerServiceApplicationTests {
 
     @Test
     public void updateBeerTest() throws Exception {
+        when(beerServices.updateBeer(any(), any())).thenReturn(getValidBeerDto());
+
         BeerDto beerDto = BeerDto.builder()
                 .beerName("Miss Quincy")
                 .beerStyle(BeerStyleEnum.ALE)
-                .upc(312321414L)
+                .upc(BeerLoader.BEER_2_UPC)
                 .price(BigDecimal.valueOf(3.25))
                 .build();
 
@@ -119,6 +132,16 @@ class MsBeerServiceApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDto)))
                 .andExpect(status().isNoContent());
+    }
+
+
+    BeerDto getValidBeerDto(){
+        return BeerDto.builder()
+                .beerName("My beer")
+                .beerStyle(BeerStyleEnum.ALE)
+                .price(new BigDecimal("2.50"))
+                .upc(BeerLoader.BEER_2_UPC)
+                .build();
     }
 
     private static class ConstrainedFields {
