@@ -32,7 +32,7 @@ public class Beer {
     private Timestamp creationDate;
 
     @UpdateTimestamp
-    private Timestamp lastMidifiedDate;
+    private Timestamp lastModifiedDate;
     private String beerName;
     private String beerStyle;
 
