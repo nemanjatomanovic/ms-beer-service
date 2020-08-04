@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -65,7 +66,7 @@ class MsBeerServiceApplicationTests {
 
     @Test
     public void getBeerTest() throws Exception {
-        when(beerServices.getById(any())).thenReturn(getValidBeerDto());
+        when(beerServices.getById(any(), anyBoolean())).thenReturn(getValidBeerDto());
 
         mockMvc.perform(get("/api/v1/beer/{beerId}", UUID.randomUUID().toString())
                 .accept(MediaType.APPLICATION_JSON))
