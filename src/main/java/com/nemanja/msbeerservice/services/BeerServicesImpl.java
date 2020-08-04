@@ -1,14 +1,20 @@
 package com.nemanja.msbeerservice.services;
 
-import com.nemanja.msbeerservice.controller.NotFoundException;
+import com.nemanja.msbeerservice.web.contoller.NotFoundException;
 import com.nemanja.msbeerservice.domain.Beer;
 import com.nemanja.msbeerservice.repositories.BeerRepository;
 import com.nemanja.msbeerservice.web.mappers.BeerMapper;
 import com.nemanja.msbeerservice.web.model.BeerDto;
+import com.nemanja.msbeerservice.web.model.BeerPageList;
+import com.nemanja.msbeerservice.web.model.BeerStyleEnum;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -16,6 +22,7 @@ public class BeerServicesImpl implements BeerServices {
 
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
+
     @Override
     public BeerDto getById(UUID beerId) {
         return beerMapper.beerToBeerDto(beerRepository.findById(beerId).orElseThrow(NotFoundException::new));
@@ -38,5 +45,35 @@ public class BeerServicesImpl implements BeerServices {
 
 
         return beerMapper.beerToBeerDto(beerRepository.save(beer));
+    }
+
+    @Override
+    public BeerPageList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest) {
+
+        BeerPageList beerPageList;
+        Page<Beer> beerPage;
+
+        if (!StringUtils.isEmpty(beerName) && !StringUtils.isEmpty(beerStyle)) {
+            //search both
+            beerPage = beerRepository.findAllByBeerNameAndBeerStyle(beerName, beerStyle, pageRequest);
+        } else if (!StringUtils.isEmpty(beerName) && StringUtils.isEmpty(beerStyle)) {
+            beerPage = beerRepository.findAllByBeerName(beerName, pageRequest);
+        } else if (StringUtils.isEmpty(beerName) && !StringUtils.isEmpty(beerStyle)) {
+            beerPage = beerRepository.findAllByBeerStyle(beerStyle, pageRequest);
+        } else {
+            beerPage = beerRepository.findAll(pageRequest);
+        }
+
+        beerPageList = new BeerPageList(beerPage
+                .getContent()
+                .stream()
+                .map(beerMapper::beerToBeerDto)
+                .collect(Collectors.toList()),
+                PageRequest
+                        .of(beerPage.getPageable().getPageNumber(),
+                                beerPage.getPageable().getPageSize()),
+                beerPage.getTotalElements());
+
+        return beerPageList;
     }
 }
