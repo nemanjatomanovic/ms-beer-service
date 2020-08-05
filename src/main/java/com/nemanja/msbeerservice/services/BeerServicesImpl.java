@@ -8,6 +8,8 @@ import com.nemanja.msbeerservice.web.model.BeerDto;
 import com.nemanja.msbeerservice.web.model.BeerPageList;
 import com.nemanja.msbeerservice.web.model.BeerStyleEnum;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,16 +20,19 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BeerServicesImpl implements BeerServices {
 
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
+    @Cacheable(cacheNames = "beerCache", key = "#beerId", condition = "#showInventoryOnHand == false")
     @Override
     public BeerDto getById(UUID beerId, Boolean showInventoryOnHand) {
-        if (showInventoryOnHand){
+        log.debug("Getting beer by ID = {}", beerId);
+        if (showInventoryOnHand) {
             return beerMapper.beerToBeerDtoWithInventory(beerRepository.findById(beerId).orElseThrow(NotFoundException::new));
-        }else {
+        } else {
             return beerMapper.beerToBeerDto(beerRepository.findById(beerId).orElseThrow(NotFoundException::new));
         }
     }
@@ -51,6 +56,7 @@ public class BeerServicesImpl implements BeerServices {
         return beerMapper.beerToBeerDto(beerRepository.save(beer));
     }
 
+    @Cacheable(cacheNames = "beerListCache", condition = "#showInventoryOnHand == false")
     @Override
     public BeerPageList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest, Boolean showInventoryOnHand) {
 
@@ -92,5 +98,11 @@ public class BeerServicesImpl implements BeerServices {
 
 
         return beerPageList;
+    }
+
+    @Cacheable(cacheNames = "beerUpcCache")
+    @Override
+    public BeerDto getByUPC(String upc) {
+        return beerMapper.beerToBeerDto(beerRepository.findByUpc(upc));
     }
 }
