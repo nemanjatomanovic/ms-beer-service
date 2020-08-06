@@ -5,9 +5,9 @@
 
 	<!--Podešavamo koordinate ka našem BOM-->
 	<parent>
-        <groupId>nemanja.data</groupId>
-        <artifactId>ms-brewery-bom</artifactId>
-        <version>1.0-SNAPSHOT</version>
+		<groupId>com.github.sfg-beer-works</groupId>
+		<artifactId>sfg-brewery-bom</artifactId>
+		<version>1.0.7</version>
 	</parent>
 	<groupId>com.nemanja</groupId>
 	<artifactId>ms-beer-service</artifactId>
@@ -65,6 +65,32 @@
 						<version>${spring-restdocs.version}</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-versions</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>[3.3.9,)</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>11</version>
+								</requireJavaVersion>
+								<requireReleaseDeps>
+									<onlyWhenRelease>true</onlyWhenRelease>
+									<message>Release builds must not have on snapshot dependencies</message>
+								</requireReleaseDeps>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
