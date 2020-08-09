@@ -4,4 +4,4 @@ CREATE DATABASE beer_service;
 
 CREATE ROLE beer_user WITH ENCRYPTED PASSWORD 'beerusesrpassword';
 
-GRANT ALL PRIVILEGES ON DATABASE beer_service TO beer_user;
+ALTER ROLE beer_user LOGIN;
