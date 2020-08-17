@@ -1,5 +1,6 @@
-package com.nemanja.msbeerservice.services;
+package com.nemanja.msbeerservice.services.brewing;
 
+import com.nemanja.msbeerservice.config.JmsConfig;
 import com.nemanja.msbeerservice.domain.Beer;
 import com.nemanja.msbeerservice.events.BrewBeerEvent;
 import com.nemanja.msbeerservice.repositories.BeerRepository;
@@ -19,8 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BrewingService {
 
-    @Value("${brewing.request.queue}")
-    private String queueName;
 
 
     private final BeerRepository beerRepository;
@@ -39,7 +38,7 @@ public class BrewingService {
             log.debug("Inventory is {} ", qoh);
 
             if (beer.getMinOnHand() >= qoh) {
-                jmsTemplate.convertAndSend(queueName, new BrewBeerEvent(beerMapper.beerToBeerDto(beer)));
+                jmsTemplate.convertAndSend(JmsConfig.BREWING_REQUEST_QUEUE, new BrewBeerEvent(beerMapper.beerToBeerDto(beer)));
             }
         });
     }
