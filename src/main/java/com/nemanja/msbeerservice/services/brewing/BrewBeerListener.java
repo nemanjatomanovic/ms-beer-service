@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class BrewBeerListener {
      * Ovde osluskujemo dogadjaje koji se desavaju u metodi {@link com.nemanja.msbeerservice.services.brewing.BrewingService#checkForLowInventory()}
      * U toj metodi saljemo poruke na kanal definisan u konstanti
      */
+    @Transactional
     @JmsListener(destination = JmsConfig.BREWING_REQUEST_QUEUE)
     public void listen(BrewBeerEvent event){
         BeerDto beerDto = event.getBeerDto();
@@ -33,7 +36,7 @@ public class BrewBeerListener {
 
         NewInventoryEvent newInventoryEvent = new NewInventoryEvent(beerDto);
 
-        log.debug("Brewed beer {}, QOH {}", beer.getMinOnHand(), beerDto.getQuantityOnHand());
+        log.debug("Brewed beer " + beer.getMinOnHand() + "QOH " + beerDto.getQuantityOnHand());
 
         jmsTemplate.convertAndSend(JmsConfig.NEW_INVENTORY_QUEUE, newInventoryEvent);
     }
